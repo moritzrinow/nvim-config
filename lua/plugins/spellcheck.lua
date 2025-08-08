@@ -2,6 +2,6 @@ return {
 	"psliwka/vim-dirtytalk",
 	build = ":DirtytalkUpdate",
 	config = function()
-		vim.opt.spelllang = { "en", "de", "programming" }
+		vim.opt.spelllang = { "en", "de" }
 	end,
 }

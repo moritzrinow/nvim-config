@@ -21,17 +21,22 @@ return {
 			python = { "isort", "black" },
 			javascript = { "prettier" },
 			html = { "prettier" },
+			cs = { "csharpier" },
 		},
 		-- Set default options
 		default_format_opts = {
 			lsp_format = "fallback",
 		},
 		-- Set up format-on-save
-		format_on_save = { timeout_ms = 500 },
+		-- format_on_save = { timeout_ms = 500 },
 		-- Customize formatters
 		formatters = {
 			shfmt = {
 				prepend_args = { "-i", "2" },
+			},
+			csharpier = {
+				command = "csharpier",
+				args = { "format", "--write-stdout" },
 			},
 		},
 	},

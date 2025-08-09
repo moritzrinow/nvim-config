@@ -8,7 +8,7 @@ return {
 		"WhoIsSethDaniel/mason-tool-installer.nvim",
 		"j-hui/fidget.nvim",
 		"saghen/blink.cmp",
-		{ "Hoffs/omnisharp-extended-lsp.nvim", lazy = true },
+		{ "Hoffs/omnisharp-extended-lsp.nvim" },
 	},
 	config = function()
 		vim.api.nvim_create_autocmd("LspAttach", {
@@ -33,16 +33,16 @@ return {
 				map("gra", vim.lsp.buf.code_action, "[G]oto Code [A]ction", { "n", "x" })
 
 				-- Find references for the word under your cursor.
-				map("grr", require("telescope.builtin").lsp_references, "[G]oto [R]eferences")
+				map("grr", require("omnisharp_extended").telescope_lsp_references, "[G]oto [R]eferences")
 
 				-- Jump to the implementation of the word under your cursor.
 				--  Useful when your language has ways of declaring types without an actual implementation.
-				map("gri", require("telescope.builtin").lsp_implementations, "[G]oto [I]mplementation")
+				map("gri", require("omnisharp_extended").telescope_lsp_implementation, "[G]oto [I]mplementation")
 
 				-- Jump to the definition of the word under your cursor.
 				--  This is where a variable was first declared, or where a function is defined, etc.
 				--  To jump back, press <C-t>.
-				map("grd", require("telescope.builtin").lsp_definitions, "[G]oto [D]efinition")
+				map("grd", require("omnisharp_extended").telescope_lsp_definitions, "[G]oto [D]efinition")
 
 				-- WARN: This is not Goto Definition, this is Goto Declaration.
 				--  For example, in C this would take you to the header.

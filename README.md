@@ -10,7 +10,7 @@ Features:
 - [Rose Pine](https://github.com/rose-pine/neovim) theme.
 - Syntax highlighting with [Treesitter](https://github.com/nvim-treesitter/nvim-treesitter).
 - Fuzzy finding with [Telescope](https://github.com/nvim-telescope/telescope.nvim).
-- Filesystem navigation with [Neo-tree](https://github.com/nvim-neo-tree/neo-tree.nvim) and [Harpoon](https://github.com/ThePrimeagen/harpoon).
+- Filesystem navigation with [Oil](https://github.com/stevearc/oil.nvim) and [Harpoon](https://github.com/ThePrimeagen/harpoon).
 - Completion with [Blink Completion](https://github.com/Saghen/blink.cmp).
 - Formatting via [Conform](https://github.com/stevearc/conform.nvim).
 - Automatic indentation detection with [Guess Indent](https://github.com/NMAC427/guess-indent.nvim).

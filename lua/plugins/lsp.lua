@@ -1,6 +1,7 @@
 return {
 	"neovim/nvim-lspconfig",
-	event = "VeryLazy",
+	event = { "BufReadPost", "BufNewFile" },
+	cmd = { "LspInfo", "LspInstall", "LspUninstall" },
 	dependencies = {
 		{ "mason-org/mason.nvim", opts = {} },
 		"mason-org/mason-lspconfig.nvim",

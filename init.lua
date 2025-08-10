@@ -4,6 +4,8 @@ vim.g.maplocalleader = " "
 vim.o.number = true
 vim.o.relativenumber = true
 
+vim.g.winborder = "rounded"
+
 vim.g.have_nerd_font = true
 
 vim.schedule(function()
@@ -63,6 +65,14 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 	group = vim.api.nvim_create_augroup("highlight-yank", { clear = true }),
 	callback = function()
 		vim.hl.on_yank()
+	end,
+})
+
+-- Register file-types for Blazor
+vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+	pattern = { "*.cshtml", "*.razor" },
+	callback = function()
+		vim.bo.filetype = "razor"
 	end,
 })
 

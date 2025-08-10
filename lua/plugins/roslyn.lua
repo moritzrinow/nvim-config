@@ -1,7 +1,7 @@
 return {
 	{
 		"seblyng/roslyn.nvim",
-		ft = { "cs", "razor" },
+		-- ft = { "cs", "razor" },
 		dependencies = {
 			"neovim/nvim-lspconfig",
 			{

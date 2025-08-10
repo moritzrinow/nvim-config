@@ -68,14 +68,6 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 	end,
 })
 
--- Register file-types for Blazor
-vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
-	pattern = { "*.cshtml", "*.razor" },
-	callback = function()
-		vim.bo.filetype = "razor"
-	end,
-})
-
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then

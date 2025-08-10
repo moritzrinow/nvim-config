@@ -3,12 +3,19 @@ return {
 	event = { "BufReadPost", "BufNewFile" },
 	cmd = { "LspInfo", "LspInstall", "LspUninstall" },
 	dependencies = {
-		{ "mason-org/mason.nvim", opts = {} },
+		{
+			"mason-org/mason.nvim",
+			opts = {
+				registries = {
+					"github:mason-org/mason-registry",
+					"github:Crashdummyy/mason-registry",
+				},
+			},
+		},
 		"mason-org/mason-lspconfig.nvim",
 		"WhoIsSethDaniel/mason-tool-installer.nvim",
 		"j-hui/fidget.nvim",
 		"saghen/blink.cmp",
-		{ "Hoffs/omnisharp-extended-lsp.nvim" },
 	},
 	config = function()
 		vim.api.nvim_create_autocmd("LspAttach", {
@@ -33,16 +40,16 @@ return {
 				map("gra", vim.lsp.buf.code_action, "[G]oto Code [A]ction", { "n", "x" })
 
 				-- Find references for the word under your cursor.
-				map("grr", require("omnisharp_extended").telescope_lsp_references, "[G]oto [R]eferences")
+				map("grr", require("telescope.builtin").lsp_references, "[G]oto [R]eferences")
 
 				-- Jump to the implementation of the word under your cursor.
 				--  Useful when your language has ways of declaring types without an actual implementation.
-				map("gri", require("omnisharp_extended").telescope_lsp_implementation, "[G]oto [I]mplementation")
+				map("gri", require("telescope.builtin").lsp_implementations, "[G]oto [I]mplementation")
 
 				-- Jump to the definition of the word under your cursor.
 				--  This is where a variable was first declared, or where a function is defined, etc.
 				--  To jump back, press <C-t>.
-				map("grd", require("omnisharp_extended").telescope_lsp_definitions, "[G]oto [D]efinition")
+				map("grd", require("telescope.builtin").lsp_definitions, "[G]oto [D]efinition")
 
 				-- WARN: This is not Goto Definition, this is Goto Declaration.
 				--  For example, in C this would take you to the header.
@@ -154,12 +161,6 @@ return {
 			},
 		})
 
-		-- LSP servers and clients are able to communicate to each other what features they support.
-		--  By default, Neovim doesn't support everything that is in the LSP specification.
-		--  When you add blink.cmp, luasnip, etc. Neovim now has *more* capabilities.
-		--  So, we create new capabilities with blink.cmp, and then broadcast that to the servers.
-		local capabilities = require("blink.cmp").get_lsp_capabilities()
-
 		-- Enable the following language servers
 		--  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
 		--
@@ -171,10 +172,11 @@ return {
 		--        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
 		local servers = {
 			gopls = {},
-			omnisharp = {},
+			-- omnisharp = {},
 			templ = {},
 			terraformls = {},
 			ts_ls = {},
+			html = {},
 			pylsp = {},
 			-- rust_analyzer = {},
 			-- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
@@ -223,6 +225,8 @@ return {
 			"prettier", -- Formatter
 			"csharpier",
 			"netcoredbg",
+			"rzls",
+			"roslyn",
 		})
 		require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 

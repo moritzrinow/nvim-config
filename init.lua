@@ -41,7 +41,7 @@ vim.o.confirm = true
 
 vim.o.spell = true
 
-vim.o.guicursor=""
+vim.opt.guicursor = "n-v-c:block,i-ci:block,r-cr:block,sm:block"
 
 vim.keymap.set("n", "<leader>sc", function()
 	vim.opt.spell = not vim.opt.spell:get()

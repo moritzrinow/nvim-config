@@ -16,6 +16,7 @@ Features:
 - Automatic indentation detection with [Guess Indent](https://github.com/NMAC427/guess-indent.nvim).
 - Focus mode with [Zen Mode](https://github.com/folke/zen-mode.nvim).
 - Easily remembered keybindings with [Which Key](https://github.com/folke/which-key.nvim).
+- Git integration with [Fugitive](https://github.com/tpope/vim-fugitive).
 - Diagnostics listing with [Trouble](https://github.com/folke/trouble.nvim).
 - Inline Markdown preview via [Markview](https://github.com/OXY2DEV/markview.nvim).
 - [Mason](https://github.com/mason-org/mason.nvim) for managing LSPs, formatters and Co.

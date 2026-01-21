@@ -3,6 +3,6 @@ return {
 	event = "VeryLazy",
 	build = ":DirtytalkUpdate",
 	config = function()
-		vim.opt.spelllang = { "en", "de" }
+		vim.opt.spelllang = { }
 	end,
 }

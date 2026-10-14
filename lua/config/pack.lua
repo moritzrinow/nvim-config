@@ -79,7 +79,7 @@ vim.api.nvim_create_autocmd("PackChanged", {
 -- Dependencies are listed before the plugins that need them.
 vim.pack.add({
 	-- UI / appearance
-	{ src = gh("rose-pine/neovim"), name = "rose-pine", version = major(3) },
+	gh("aktersnurra/no-clown-fiesta.nvim"), -- colorscheme; untagged
 	{ src = gh("nvim-mini/mini.icons"), version = "stable" }, -- mini.* release branch
 	{ src = gh("folke/which-key.nvim"), version = major(3) },
 	{ src = gh("j-hui/fidget.nvim"), version = major(2) },

@@ -37,6 +37,10 @@
       "src": "https://github.com/folke/lazydev.nvim",
       "version": "1.0.0 - 2.0.0"
     },
+    "lush.nvim": {
+      "rev": "9c60ec2279d62487d942ce095e49006af28eed6e",
+      "src": "https://github.com/rktjmp/lush.nvim"
+    },
     "markview.nvim": {
       "rev": "49d2cf7ced872db74083a144ded1f94fe224d09a",
       "src": "https://github.com/OXY2DEV/markview.nvim",
@@ -65,6 +69,10 @@
       "rev": "e56797f90192d81f1fda02e662fc3e8e3d775027",
       "src": "https://github.com/nvim-mini/mini.icons",
       "version": "'stable'"
+    },
+    "no-clown-fiesta.nvim": {
+      "rev": "04b808e9769ded988089772ffcaf08d92d75d927",
+      "src": "https://github.com/aktersnurra/no-clown-fiesta.nvim"
     },
     "nvim-autopairs": {
       "rev": "3172f40c16563db871a58f20d205c710ad782311",
@@ -141,6 +149,10 @@
       "rev": "fcbf4eea17cb299c02557d576f0d568878e354a4",
       "src": "https://github.com/folke/which-key.nvim",
       "version": "3.0.0 - 4.0.0"
+    },
+    "zenbones.nvim": {
+      "rev": "8304d8df9b823ff11e103afa62f38c39f534abe6",
+      "src": "https://github.com/zenbones-theme/zenbones.nvim"
     }
   }
 }

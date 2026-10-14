@@ -1,6 +1,7 @@
 -- Colorscheme, icons, which-key, LSP progress
 
-vim.cmd.colorscheme("rose-pine")
+vim.o.background = "dark"
+vim.cmd.colorscheme("no-clown-fiesta")
 
 require("mini.icons").setup()
 MiniIcons.mock_nvim_web_devicons() -- plugins that only know nvim-web-devicons get mini.icons

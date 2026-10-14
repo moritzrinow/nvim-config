@@ -33,6 +33,14 @@ nvim-pack-lock.json      vim.pack lockfile (generated; commit it, don't edit it)
 2. Restart (`:restart`). Mason installs the LSP servers and tools, treesitter installs parsers.
 3. `:checkhealth vim.pack`, `:checkhealth nvim-treesitter`, `:checkhealth vim.lsp`.
 
+## Versioning policy
+
+Plugins that tag releases are locked to their current major in `lua/config/pack.lua`
+(`version = vim.version.range("N.x")`): updates stay within `N.y.z`, a major bump is a
+deliberate edit. Plugins with stale or no tags follow their default branch and are gated
+by the lockfile + the update review buffer. nvim-treesitter (`main`) is updated together
+with Neovim upgrades, not in the regular batch. Stay on Neovim stable patch releases.
+
 ## Day-to-day plugin management
 
 | action | how |

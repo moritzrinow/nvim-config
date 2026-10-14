@@ -4,9 +4,22 @@
 -- this file runs, and their plugin/ scripts are sourced once init.lua finishes.
 -- Startup stays fast anyway thanks to vim.loader; everything is "lazy" at the
 -- require() level.
+--
+-- Versioning policy (stability first):
+--   * Plugins that tag releases are locked to their current major with
+--     vim.version.range("N.x"): vim.pack.update() moves to the newest N.y.z
+--     tag and never crosses into N+1. Bumping a major is a deliberate edit here.
+--   * Plugins with stale or no tags follow their default branch; the lockfile
+--     (nvim-pack-lock.json) plus the vim.pack.update() review buffer are the
+--     gate. Read the commit log before :write.
+--   * nvim-treesitter (main) only supports the latest stable/nightly Neovim:
+--     update it together with Neovim upgrades, not in the regular batch.
 
 local gh = function(repo)
 	return "https://github.com/" .. repo
+end
+local major = function(n)
+	return vim.version.range(n .. ".x")
 end
 
 -- Build hooks -------------------------------------------------------------
@@ -66,49 +79,50 @@ vim.api.nvim_create_autocmd("PackChanged", {
 -- Dependencies are listed before the plugins that need them.
 vim.pack.add({
 	-- UI / appearance
-	{ src = gh("rose-pine/neovim"), name = "rose-pine" },
-	gh("nvim-mini/mini.icons"),
-	gh("folke/which-key.nvim"),
-	gh("j-hui/fidget.nvim"),
+	{ src = gh("rose-pine/neovim"), name = "rose-pine", version = major(3) },
+	{ src = gh("nvim-mini/mini.icons"), version = "stable" }, -- mini.* release branch
+	{ src = gh("folke/which-key.nvim"), version = major(3) },
+	{ src = gh("j-hui/fidget.nvim"), version = major(2) },
 
 	-- Core editing
-	gh("nvim-lua/plenary.nvim"),
-	gh("folke/snacks.nvim"), -- picker (replaces telescope), vim.ui.select, zen mode, input
-	gh("stevearc/oil.nvim"),
-	{ src = gh("ThePrimeagen/harpoon"), version = "harpoon2" },
-	gh("windwp/nvim-autopairs"),
-	gh("NMAC427/guess-indent.nvim"),
-	gh("psliwka/vim-dirtytalk"),
-	gh("folke/trouble.nvim"),
+	gh("nvim-lua/plenary.nvim"), -- tags are ancient (v0.1.4); follow master
+	{ src = gh("folke/snacks.nvim"), version = major(2) }, -- picker, vim.ui.select, zen, input
+	{ src = gh("stevearc/oil.nvim"), version = major(2) },
+	{ src = gh("ThePrimeagen/harpoon"), version = "harpoon2" }, -- untagged
+	gh("windwp/nvim-autopairs"), -- single stale tag; follow master
+	gh("NMAC427/guess-indent.nvim"), -- untagged
+	gh("psliwka/vim-dirtytalk"), -- untagged
+	{ src = gh("folke/trouble.nvim"), version = major(3) },
 
-	-- Treesitter (main branch; master is frozen and doesn't work on 0.12)
+	-- Treesitter (main branch; master is frozen and doesn't work on 0.12).
+	-- Untagged on main: update together with Neovim upgrades.
 	{ src = gh("nvim-treesitter/nvim-treesitter"), version = "main" },
-	gh("OXY2DEV/markview.nvim"),
+	{ src = gh("OXY2DEV/markview.nvim"), version = major(29) }, -- majors are breaking; bump deliberately
 
 	-- LSP / tooling
-	gh("neovim/nvim-lspconfig"),
-	gh("mason-org/mason.nvim"),
-	gh("mason-org/mason-lspconfig.nvim"),
-	gh("WhoIsSethDaniel/mason-tool-installer.nvim"),
-	gh("folke/lazydev.nvim"),
-	gh("stevearc/conform.nvim"),
+	{ src = gh("neovim/nvim-lspconfig"), version = major(2) },
+	{ src = gh("mason-org/mason.nvim"), version = major(2) },
+	{ src = gh("mason-org/mason-lspconfig.nvim"), version = major(2) },
+	gh("WhoIsSethDaniel/mason-tool-installer.nvim"), -- untagged
+	{ src = gh("folke/lazydev.nvim"), version = major(1) },
+	{ src = gh("stevearc/conform.nvim"), version = major(9) },
 
-	-- Completion (stay on the 1.x line; 2.x is still breaking things)
-	{ src = gh("saghen/blink.cmp"), version = vim.version.range("1.x") },
+	-- Completion (2.x is still breaking things)
+	{ src = gh("saghen/blink.cmp"), version = major(1) },
 
 	-- Git
-	gh("tpope/vim-fugitive"),
+	gh("tpope/vim-fugitive"), -- untagged, effectively frozen
 
 	-- Debugging
-	gh("mfussenegger/nvim-dap"),
-	gh("nvim-neotest/nvim-nio"),
-	gh("rcarriga/nvim-dap-ui"),
-	gh("jay-babu/mason-nvim-dap.nvim"),
-	gh("leoluz/nvim-dap-go"),
-	gh("NicholasMata/nvim-dap-cs"),
+	gh("mfussenegger/nvim-dap"), -- tags lag far behind fixes; follow master
+	{ src = gh("nvim-neotest/nvim-nio"), version = major(1) },
+	gh("rcarriga/nvim-dap-ui"), -- last tag 2024; follow master
+	{ src = gh("jay-babu/mason-nvim-dap.nvim"), version = major(2) },
+	gh("leoluz/nvim-dap-go"), -- untagged
+	gh("NicholasMata/nvim-dap-cs"), -- untagged
 
 	-- Languages
-	gh("ray-x/guihua.lua"),
-	gh("ray-x/go.nvim"),
-	gh("seblyng/roslyn.nvim"), -- C# + Razor (rzls.nvim is superseded by this)
+	gh("ray-x/guihua.lua"), -- untagged
+	gh("ray-x/go.nvim"), -- tags lag far behind fixes; follow master
+	gh("seblyng/roslyn.nvim"), -- untagged; C# + Razor (rzls.nvim is superseded by this)
 })

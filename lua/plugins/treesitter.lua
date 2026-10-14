@@ -59,6 +59,11 @@ vim.api.nvim_create_autocmd("FileType", {
 			return
 		end
 		vim.treesitter.start(ev.buf, lang)
-		vim.bo[ev.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+		-- Only let treesitter drive indentation when it has indent queries for
+		-- the language; otherwise keep Neovim's own indent/<ft>.vim (e.g. C#
+		-- has no indents.scm on nvim-treesitter main, but indent/cs.vim works).
+		if vim.treesitter.query.get(lang, "indents") then
+			vim.bo[ev.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+		end
 	end,
 })

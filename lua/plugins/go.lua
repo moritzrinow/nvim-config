@@ -1,27 +1,8 @@
-return {
-  "ray-x/go.nvim",
-  event = "VeryLazy",
-  dependencies = {  -- optional packages
-    "ray-x/guihua.lua",
-    "neovim/nvim-lspconfig",
-    "nvim-treesitter/nvim-treesitter",
-  },
-  opts = {
-    -- lsp_keymaps = false,
-    -- other options
-  },
-  config = function(lp, opts)
-    require("go").setup(opts)
-    -- local format_sync_grp = vim.api.nvim_create_augroup("GoFormat", {})
-    -- vim.api.nvim_create_autocmd("BufWritePre", {
-    --   pattern = "*.go",
-    --   callback = function()
-    --   require('go.format').goimports()
-    --   end,
-    --   group = format_sync_grp,
-    -- })
-  end,
-  event = {"CmdlineEnter"},
-  ft = {"go", 'gomod'},
-  build = ':lua require("go.install").update_all_sync()' -- if you need to install/update all binaries
-}
+-- go.nvim (gopls itself is installed/enabled via mason in plugins/lsp.lua)
+-- Go binaries used by go.nvim are installed by the PackChanged hook in
+-- lua/config/pack.lua; run :GoInstallBinaries to (re)install manually.
+
+require("go").setup({
+	-- lsp_cfg = false is the default: gopls is configured by nvim-lspconfig/mason.
+	-- lsp_keymaps = false,
+})

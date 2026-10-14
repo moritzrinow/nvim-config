@@ -1,101 +1,40 @@
+-- Neovim 0.12+ config, managed with the built-in package manager (vim.pack).
+--
+-- Layout:
+--   lua/config/options.lua   editor options
+--   lua/config/keymaps.lua   global keymaps (plugin keymaps live next to the plugin)
+--   lua/config/autocmds.lua  global autocommands
+--   lua/config/pack.lua      plugin list + build hooks (the only place vim.pack.add is called)
+--   lua/plugins/*.lua        per-plugin setup, required explicitly below in dependency order
+--
+-- Plugin management cheat sheet:
+--   :lua vim.pack.update()                 fetch updates, review in a tab, :write to apply / :quit to discard
+--   :lua vim.pack.update(nil,{offline=true}) inspect what is installed without fetching
+--   :lua vim.pack.del({ 'name' })          remove a plugin after deleting it from pack.lua
+--   :checkhealth vim.pack                  sanity-check the lockfile vs. what is on disk
+--   nvim-pack-lock.json                    the lockfile; commit it, never edit it by hand
+
+vim.loader.enable()
+
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
-
-vim.o.number = true
-vim.o.relativenumber = true
-
-vim.g.winborder = "rounded"
-
 vim.g.have_nerd_font = true
 
-vim.schedule(function()
-	vim.o.clipboard = "unnamedplus"
-end)
+require("config.options")
+require("config.keymaps")
+require("config.autocmds")
+require("config.pack")
 
-vim.o.breakindent = true
-
-vim.o.undofile = true
-
-vim.o.ignorecase = true
-vim.o.smartcase = true
-
-vim.o.signcolumn = "yes"
-
-vim.o.updatetime = 250
-
-vim.o.timeoutlen = 300
-
-vim.o.splitright = true
-vim.o.splitbelow = true
-
-vim.o.list = true
-vim.opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
-
-vim.o.inccommand = "split"
-
-vim.o.cursorline = true
-
-vim.o.scrolloff = 10
-
-vim.o.confirm = true
-
-vim.o.spell = true
-
-vim.opt.guicursor = "n-v-c:block,i-ci:block,r-cr:block,sm:block"
-
-vim.keymap.set("n", "<leader>sc", function()
-	vim.opt.spell = not vim.opt.spell:get()
-end, { desc = "Toggle Spell Check" })
-
--- Clear highlights on search when pressing <Esc> in normal mode
-vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
-
--- Diagnostic keymaps
-vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic [Q]uickfix list" })
-
--- Disable arrow keys in normal mode
-vim.keymap.set("n", "<left>", "<cmd>echo 'Use h to move!!'<CR>")
-vim.keymap.set("n", "<right>", "<cmd>echo 'Use l to move!!'<CR>")
-vim.keymap.set("n", "<up>", "<cmd>echo 'Use k to move!!'<CR>")
-vim.keymap.set("n", "<down>", "<cmd>echo 'Use j to move!!'<CR>")
-
--- Highlight when yanking (copying) text
---  Try it with `yap` in normal mode
---  See `:help vim.hl.on_yank()`
-vim.api.nvim_create_autocmd("TextYankPost", {
-	desc = "Highlight when yanking (copying) text",
-	group = vim.api.nvim_create_augroup("highlight-yank", { clear = true }),
-	callback = function()
-		vim.hl.on_yank()
-	end,
-})
-
--- Bootstrap lazy.nvim
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not (vim.uv or vim.loop).fs_stat(lazypath) then
-	local lazyrepo = "https://github.com/folke/lazy.nvim.git"
-	local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
-	if vim.v.shell_error ~= 0 then
-		vim.api.nvim_echo({
-			{ "Failed to clone lazy.nvim:\n", "ErrorMsg" },
-			{ out, "WarningMsg" },
-			{ "\nPress any key to exit..." },
-		}, true, {})
-		vim.fn.getchar()
-		os.exit(1)
-	end
-end
-vim.opt.rtp:prepend(lazypath)
-
--- Setup lazy.nvim
-require("lazy").setup({
-	spec = {
-		-- import your plugins
-		{ import = "plugins" },
-	},
-	-- Configure any other settings here. See the documentation for more details.
-	-- colorscheme that will be used when installing plugins.
-	install = { colorscheme = { "habamax" } },
-	-- automatically check for plugin updates
-	checker = { enabled = true },
-})
+-- Plugin setup, in dependency order (icons/colorscheme first, LSP after mason, etc.).
+require("plugins.ui")
+require("plugins.editor")
+require("plugins.picker")
+require("plugins.treesitter")
+require("plugins.completion")
+require("plugins.lsp")
+require("plugins.format")
+require("plugins.git")
+require("plugins.dap")
+require("plugins.go")
+require("plugins.csharp")
+require("plugins.markdown")

@@ -1,28 +1,69 @@
-This is my personal Neovim config for 0.11+.
+# nvim config
 
-Plugins are managed via [lazy.nvim](https://github.com/folke/lazy.nvim).
+Neovim **0.12+** configuration using the built-in package manager (`vim.pack`),
+no lazy.nvim.
 
-Global stuff is configured in [init.lua](init.lua).
+## Layout
 
-Plugins are configured in the [plugins](lua/plugins) directory.
+```
+init.lua                 entry point; requires everything below in order
+lua/config/options.lua   editor options
+lua/config/keymaps.lua   global keymaps
+lua/config/autocmds.lua  global autocommands / filetype additions
+lua/config/pack.lua      plugin list + PackChanged build hooks (only vim.pack.add call)
+lua/plugins/*.lua        per-plugin setup
+nvim-pack-lock.json      vim.pack lockfile (generated; commit it, don't edit it)
+```
 
-Features:
-- [Rose Pine](https://github.com/rose-pine/neovim) theme.
-- Syntax highlighting with [Treesitter](https://github.com/nvim-treesitter/nvim-treesitter).
-- Fuzzy finding with [Telescope](https://github.com/nvim-telescope/telescope.nvim).
-- Filesystem navigation with [Oil](https://github.com/stevearc/oil.nvim) and [Harpoon](https://github.com/ThePrimeagen/harpoon).
-- Completion with [Blink Completion](https://github.com/Saghen/blink.cmp).
-- Formatting via [Conform](https://github.com/stevearc/conform.nvim).
-- Automatic indentation detection with [Guess Indent](https://github.com/NMAC427/guess-indent.nvim).
-- Focus mode with [Zen Mode](https://github.com/folke/zen-mode.nvim).
-- Easily remembered keybindings with [Which Key](https://github.com/folke/which-key.nvim).
-- Git integration with [Fugitive](https://github.com/tpope/vim-fugitive).
-- Diagnostics listing with [Trouble](https://github.com/folke/trouble.nvim).
-- Inline Markdown preview via [Markview](https://github.com/OXY2DEV/markview.nvim).
-- [Mason](https://github.com/mason-org/mason.nvim) for managing LSPs, formatters and Co.
-- Preinstalled external tools via [mason-tool-installer](https://github.com/WhoIsSethDaniel/mason-tool-installer.nvim) for development with:
-    - Terraform
-    - Go
-    - HTML, CSS, JS, TS
-    - .NET
-    - Lua
+## Machine requirements
+
+- Neovim >= 0.12
+- `git`, `curl`, `tar`
+- [`tree-sitter` CLI](https://github.com/tree-sitter/tree-sitter) >= 0.26 and a C
+  compiler (nvim-treesitter `main` compiles parsers locally)
+  - Windows: `winget install tree-sitter.tree-sitter` (or scoop/cargo) and e.g.
+    `zig`/`clang`/MSVC on `PATH`
+- `dotnet` SDK (roslyn, csharpier, netcoredbg), `go` (gopls, delve, go.nvim tools),
+  `node` (prettier, ts_ls, html)
+- A Nerd Font
+
+## First start
+
+1. Start `nvim`. `vim.pack` asks once to confirm installing the plugins (`y`, or `a` for all).
+2. Restart (`:restart`). Mason installs the LSP servers and tools, treesitter installs parsers.
+3. `:checkhealth vim.pack`, `:checkhealth nvim-treesitter`, `:checkhealth vim.lsp`.
+
+## Day-to-day plugin management
+
+| action | how |
+| --- | --- |
+| update everything | `<leader>pu` or `:lua vim.pack.update()` → review tab → `:write` to apply, `:quit` to discard |
+| see what is installed | `<leader>pl` or `:lua vim.pack.update(nil, { offline = true })` |
+| add a plugin | add it to `lua/config/pack.lua`, restart |
+| remove a plugin | delete it from `pack.lua`, restart, `:lua vim.pack.del({ "name" })` |
+| pin / unpin | set `version = "<tag|branch|commit>"` in `pack.lua`, restart, `vim.pack.update({ "name" })` |
+| revert an update | `git checkout -- nvim-pack-lock.json`, restart, `:lua vim.pack.update(nil, { target = "lockfile" })` |
+| new machine | clone, start nvim: everything installs at the lockfile revisions |
+
+## Notes
+
+- `:DirtytalkBuild` rebuilds the "programming" spell dictionary from vim-dirtytalk's
+  word lists (its own `:DirtytalkUpdate` is broken on 0.12). It runs automatically
+  when the plugin is installed or updated.
+- C#: the `roslyn` mason package (Crashdummyy registry) provides
+  `roslyn-language-server`, which roslyn.nvim picks up automatically. Razor/cshtml is
+  handled by the same server; rzls is no longer needed (`:MasonUninstall rzls`).
+- Treesitter parsers are compiled locally; `:checkhealth nvim-treesitter` shows what's
+  missing on the machine.
+
+## Keymaps
+
+Leader is `<space>`. `<leader>sk` searches all keymaps, `<leader>?` shows buffer-local ones.
+
+Highlights: `<leader>sf/sg/sw/s.` find files / grep / grep word / recent (snacks picker),
+`<leader><leader>` buffers, `\` Oil, `<leader>a`/`<C-e>` harpoon, `<leader>f` format,
+`<leader>xx` Trouble, `<leader>z` zen, `<F5>/<F1>/<F2>/<F3>/<leader>b` debugging.
+
+LSP uses Neovim's default `gr*` mappings (`grn` rename, `gra` code action, `grr`
+references, `gri` implementation, `grd` definition, `grt` type definition, `gO`
+symbols) with the picker for list results, plus `<leader>th` for inlay hints.

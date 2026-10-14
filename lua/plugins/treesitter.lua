@@ -1,27 +1,64 @@
-return {
-  "nvim-treesitter/nvim-treesitter",
-  build = ":TSUpdate",
-  branch = "master",
-  main = "nvim-treesitter.configs", -- Sets main module to use for opts
-  dependencies = { "OXY2DEV/markview.nvim" },
-  lazy = false,
-  opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'c_sharp' },
-      -- Autoinstall languages that are not installed
-      auto_install = true,
-      highlight = {
-        enable = true,
-        -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
-        --  If you are experiencing weird indenting issues, add the language to
-        --  the list of additional_vim_regex_highlighting and disabled languages for indent.
-        additional_vim_regex_highlighting = { 'ruby' },
-      },
-      indent = { enable = true, disable = { 'ruby' } },
-    },
-    -- There are additional nvim-treesitter modules that you can use to interact
-    -- with nvim-treesitter. You should go explore a few and see what interests you:
-    --
-    --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
-    --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
-    --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
+-- nvim-treesitter (main branch).
+--
+-- On `main` the plugin only installs parsers/queries; highlighting, indentation
+-- and folding are enabled with core Neovim APIs per filetype.
+-- Requirements on the machine: tree-sitter CLI (>= 0.26), a C compiler, tar, curl.
+
+local ts = require("nvim-treesitter")
+ts.setup({})
+
+-- Parsers to keep installed (no-op if already present).
+-- markview.nvim needs markdown, markdown_inline, html, latex, yaml.
+local ensure_installed = {
+	"bash",
+	"c",
+	"c_sharp",
+	"diff",
+	"go",
+	"gomod",
+	"gosum",
+	"gowork",
+	"html",
+	"javascript",
+	"json",
+	"latex",
+	"lua",
+	"luadoc",
+	"markdown",
+	"markdown_inline",
+	"python",
+	"query",
+	"razor",
+	"regex",
+	"terraform",
+	"hcl",
+	"templ",
+	"typescript",
+	"tsx",
+	"vim",
+	"vimdoc",
+	"yaml",
 }
+
+local installed = ts.get_installed()
+local missing = vim.iter(ensure_installed)
+	:filter(function(lang)
+		return not vim.tbl_contains(installed, lang)
+	end)
+	:totable()
+if #missing > 0 then
+	ts.install(missing)
+end
+
+-- Enable treesitter features for every buffer that has a parser.
+vim.api.nvim_create_autocmd("FileType", {
+	group = vim.api.nvim_create_augroup("user.treesitter", { clear = true }),
+	callback = function(ev)
+		local lang = vim.treesitter.language.get_lang(ev.match) or ev.match
+		if not vim.treesitter.language.add(lang) then
+			return
+		end
+		vim.treesitter.start(ev.buf, lang)
+		vim.bo[ev.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+	end,
+})

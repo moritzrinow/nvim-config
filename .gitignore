@@ -39,3 +39,7 @@ luac.out
 *.x86_64
 *.hex
 
+
+# vim.pack: nvim-pack-lock.json is intentionally tracked
+.luarc.json
+spell/*.add.spl

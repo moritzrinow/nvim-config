@@ -37,10 +37,6 @@
       "src": "https://github.com/folke/lazydev.nvim",
       "version": "1.0.0 - 2.0.0"
     },
-    "lush.nvim": {
-      "rev": "9c60ec2279d62487d942ce095e49006af28eed6e",
-      "src": "https://github.com/rktjmp/lush.nvim"
-    },
     "markview.nvim": {
       "rev": "49d2cf7ced872db74083a144ded1f94fe224d09a",
       "src": "https://github.com/OXY2DEV/markview.nvim",
@@ -149,10 +145,6 @@
       "rev": "fcbf4eea17cb299c02557d576f0d568878e354a4",
       "src": "https://github.com/folke/which-key.nvim",
       "version": "3.0.0 - 4.0.0"
-    },
-    "zenbones.nvim": {
-      "rev": "8304d8df9b823ff11e103afa62f38c39f534abe6",
-      "src": "https://github.com/zenbones-theme/zenbones.nvim"
     }
   }
 }

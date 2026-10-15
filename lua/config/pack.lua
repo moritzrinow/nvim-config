@@ -92,7 +92,7 @@ vim.pack.add({
 	gh("windwp/nvim-autopairs"), -- single stale tag; follow master
 	gh("NMAC427/guess-indent.nvim"), -- untagged
 	gh("psliwka/vim-dirtytalk"), -- untagged
-	{ src = gh("folke/trouble.nvim"), version = major(3) },
+	gh("folke/trouble.nvim"), -- no release since v3.7.1; 0.12 fixes are only on main
 
 	-- Treesitter (main branch; master is frozen and doesn't work on 0.12).
 	-- Untagged on main: update together with Neovim upgrades.

@@ -101,7 +101,7 @@
       "version": "1.0.0 - 2.0.0"
     },
     "nvim-treesitter": {
-      "rev": "1a4f47b03dfe92d28de7d5654c67327ef008c9e6",
+      "rev": "ca581c3436fc2b236847f5b739ebc263739e5ca6",
       "src": "https://github.com/nvim-treesitter/nvim-treesitter",
       "version": "'main'"
     },
@@ -129,9 +129,8 @@
       "version": "2.0.0 - 3.0.0"
     },
     "trouble.nvim": {
-      "rev": "748ca2789044607f19786b1d837044544c55e80a",
-      "src": "https://github.com/folke/trouble.nvim",
-      "version": "3.0.0 - 4.0.0"
+      "rev": "bd67efe408d4816e25e8491cc5ad4088e708a69a",
+      "src": "https://github.com/folke/trouble.nvim"
     },
     "vim-dirtytalk": {
       "rev": "aa57ba902b04341a04ff97214360f56856493583",

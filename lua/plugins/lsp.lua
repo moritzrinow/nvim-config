@@ -61,6 +61,13 @@ vim.api.nvim_create_autocmd("LspAttach", {
 })
 
 -- Diagnostics -------------------------------------------------------------
+-- Pull diagnostics for the whole workspace (servers supporting
+-- workspace/diagnostic, e.g. roslyn with fullSolution analysis) and list them.
+vim.keymap.set("n", "<leader>xw", function()
+	vim.lsp.buf.workspace_diagnostics()
+	vim.cmd("Trouble diagnostics open")
+end, { desc = "Workspace diagnostics (Trouble)" })
+
 vim.diagnostic.config({
 	severity_sort = true,
 	float = { source = "if_many" },

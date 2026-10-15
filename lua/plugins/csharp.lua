@@ -40,9 +40,12 @@ vim.lsp.config("roslyn", {
 			dotnet_show_completion_items_from_unimported_namespaces = true,
 			dotnet_show_name_completion_suggestions = true,
 		},
+		-- Analyse the whole solution so workspace diagnostics (<leader>xw)
+		-- cover unopened files too. Costs CPU/memory on big solutions;
+		-- switch back to "openFiles" if the server gets heavy.
 		["csharp|background_analysis"] = {
-			dotnet_analyzer_diagnostics_scope = "openFiles",
-			dotnet_compiler_diagnostics_scope = "openFiles",
+			dotnet_analyzer_diagnostics_scope = "fullSolution",
+			dotnet_compiler_diagnostics_scope = "fullSolution",
 		},
 	},
 })

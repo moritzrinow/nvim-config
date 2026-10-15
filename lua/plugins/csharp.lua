@@ -7,6 +7,10 @@
 -- built into the server now; rzls.nvim and the "rzls" mason package are no
 -- longer needed.
 
+-- :CsNew {class|interface|enum|record|struct} Name — new type file with the
+-- namespace derived from the nearest .csproj (works from Oil buffers too).
+require("config.csnew")
+
 require("roslyn").setup({
 	-- "auto" | "roslyn" | "off"
 	filewatching = "auto",

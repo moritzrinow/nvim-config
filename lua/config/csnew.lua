@@ -118,6 +118,16 @@ function M.create(kind, name)
 
 	vim.fn.mkdir(dir, "p")
 	vim.fn.writefile(lines, path)
+
+	-- Tell Roslyn about the new file right away so it joins the project
+	-- instead of being opened as a "miscellaneous file" (no solution types)
+	-- while the file watcher catches up.
+	for _, client in ipairs(vim.lsp.get_clients({ name = "roslyn" })) do
+		client:notify("workspace/didChangeWatchedFiles", {
+			changes = { { uri = vim.uri_from_fname(path), type = 1 } }, -- 1 = Created
+		})
+	end
+
 	vim.cmd.edit(vim.fn.fnameescape(path))
 	-- Cursor inside the braces, ready to type.
 	vim.api.nvim_win_set_cursor(0, { #lines - 1, 0 })

@@ -11,6 +11,9 @@
 -- namespace derived from the nearest .csproj (works from Oil buffers too).
 require("config.csnew")
 
+-- `///` above a member generates the XML doc-comment skeleton (via Roslyn).
+require("config.roslyn_autoinsert")
+
 require("roslyn").setup({
 	-- "auto" | "roslyn" | "off"
 	-- "roslyn": the server watches the solution itself instead of Neovim

@@ -16,10 +16,10 @@ require("config.roslyn_autoinsert")
 
 require("roslyn").setup({
 	-- "auto" | "roslyn" | "off"
-	-- "roslyn": the server watches the solution itself instead of Neovim
-	-- relaying file events. More reliable for picking up new files (otherwise
-	-- they stay in the "miscellaneous files" workspace until a restart).
-	filewatching = "roslyn",
+	-- "auto": Neovim relays file events. Neither mode makes Roslyn pick up
+	-- new files reliably on Windows (drive-letter case mismatch in its glob
+	-- matching), so :CsNew sends its own events, which need this mode.
+	filewatching = "auto",
 	-- Look for solutions above the current root as well
 	broad_search = false,
 	-- Keep the solution picked with :Roslyn target

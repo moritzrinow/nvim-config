@@ -9,6 +9,11 @@ local M = {}
 
 local kinds = { "class", "interface", "enum", "record", "struct" }
 
+-- Roslyn request listing the projects a document belongs to.
+local PROJECT_CONTEXTS = "textDocument/_vs_getProjectContexts"
+local POLL_MS = 250
+local WAIT_MS = 15000
+
 --- Directory new files go to: Oil's current directory, the current file's
 --- directory, or the working directory.
 local function target_dir()
@@ -116,21 +121,87 @@ function M.create(kind, name)
 	lines[#lines + 1] = "{"
 	lines[#lines + 1] = "}"
 
+	-- A buffer left over for this path (e.g. a deleted earlier attempt) would
+	-- be reused by :edit without a new didOpen, keeping Roslyn's stale
+	-- miscellaneous-files copy. Wipe it so the file is opened fresh.
+	for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+		if vim.fs.normalize(vim.api.nvim_buf_get_name(buf)) == path then
+			if vim.bo[buf].modified then
+				return vim.notify("CsNew: a modified buffer for " .. path .. " is still open", vim.log.levels.ERROR)
+			end
+			vim.api.nvim_buf_delete(buf, { force = true })
+		end
+	end
+
 	vim.fn.mkdir(dir, "p")
 	vim.fn.writefile(lines, path)
 
-	-- Tell Roslyn about the new file right away so it joins the project
-	-- instead of being opened as a "miscellaneous file" (no solution types)
-	-- while the file watcher catches up.
-	for _, client in ipairs(vim.lsp.get_clients({ name = "roslyn" })) do
-		client:notify("workspace/didChangeWatchedFiles", {
-			changes = { { uri = vim.uri_from_fname(path), type = 1 } }, -- 1 = Created
-		})
+	local function open()
+		vim.cmd.edit(vim.fn.fnameescape(path))
+		-- Cursor inside the braces, ready to type.
+		vim.api.nvim_win_set_cursor(0, { #lines - 1, 0 })
 	end
 
-	vim.cmd.edit(vim.fn.fnameescape(path))
-	-- Cursor inside the braces, ready to type.
-	vim.api.nvim_win_set_cursor(0, { #lines - 1, 0 })
+	local client = vim.lsp.get_clients({ name = "roslyn" })[1]
+	if not client then
+		return open()
+	end
+
+	-- Don't open the file before Roslyn has added it to its project. Opened
+	-- earlier, it becomes a miscellaneous file, and after the reload the
+	-- project ends up without its project references and implicit usings
+	-- (no solution types or unimported-namespace completion), and stays so.
+	--
+	-- So: make Roslyn reload the project, then ask which project owns the
+	-- still-closed file until it names the real one.
+	--
+	-- A "created" event for the .cs file alone doesn't trigger the reload on
+	-- Windows: Roslyn lower-cases the drive letter of event paths (c:\...)
+	-- but keeps project directories upper-case (C:\...), and its glob check
+	-- (Microsoft.Extensions.FileSystemGlobbing 10.0) compares them
+	-- case-sensitively, so the new file never matches the project's
+	-- **/*.cs. A "changed" event for the .csproj takes the same reload path
+	-- without the glob check. It doesn't cause a restore: Roslyn restores
+	-- only when package references differ from the last load or
+	-- project.assets.json is missing. Both events need filewatching = "auto"
+	-- (see plugins/csharp.lua).
+	--
+	-- For unknown files Roslyn answers with a throwaway "Miscellaneous
+	-- Files" context, so only a context of the nearest .csproj counts
+	-- ("Proj" or "Proj (net10.0)").
+	local uri = vim.uri_from_fname(path)
+	local csproj = find_csproj(dir)
+	local proj = csproj and vim.fn.fnamemodify(csproj, ":t:r")
+	local changes = { { uri = uri, type = 1 } } -- 1 = Created
+	if csproj then
+		changes[#changes + 1] = { uri = vim.uri_from_fname(csproj), type = 2 } -- 2 = Changed
+	end
+	client:notify("workspace/didChangeWatchedFiles", { changes = changes })
+
+	local function in_project(ctx)
+		if ctx._vs_is_miscellaneous or ctx._vs_label == "Miscellaneous Files" then
+			return false
+		end
+		local label = ctx._vs_label or ""
+		return not proj or label == proj or label:find(proj .. " (", 1, true) == 1
+	end
+
+	vim.notify("CsNew: waiting for Roslyn to add the file to " .. (proj or "its project") .. "…", vim.log.levels.INFO)
+	local deadline = vim.uv.now() + WAIT_MS
+	local function poll()
+		client:request(PROJECT_CONTEXTS, { _vs_textDocument = { uri = uri } }, function(_, result)
+			local contexts = result and result._vs_projectContexts or {}
+			if vim.iter(contexts):any(in_project) then
+				return open()
+			end
+			if vim.uv.now() >= deadline then
+				vim.notify("CsNew: Roslyn hasn't added the file to a project yet; opening anyway", vim.log.levels.WARN)
+				return open()
+			end
+			vim.defer_fn(poll, POLL_MS)
+		end)
+	end
+	poll()
 end
 
 vim.api.nvim_create_user_command("CsNew", function(opts)

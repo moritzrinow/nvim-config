@@ -15,7 +15,8 @@ require("conform").setup({
 		jsonc = { "prettier" },
 		yaml = { "prettier" },
 		markdown = { "prettier" },
-		cs = { "csharpier" },
+		-- C#: Roslyn (LSP) only; if Roslyn isn't attached, nothing runs.
+		cs = { lsp_format = "prefer" },
 		go = { "goimports", "gofmt" },
 		-- Fallback for filetypes without a formatter of their own (built-in).
 		["_"] = { "trim_whitespace" },
@@ -26,10 +27,6 @@ require("conform").setup({
 	-- format_on_save = { timeout_ms = 500 },
 	formatters = {
 		shfmt = { prepend_args = { "-i", "2" } },
-		csharpier = {
-			command = "csharpier",
-			args = { "format", "--write-stdout" },
-		},
 	},
 })
 

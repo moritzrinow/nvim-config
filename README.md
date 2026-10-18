@@ -23,7 +23,7 @@ nvim-pack-lock.json      vim.pack lockfile (generated; commit it, don't edit it)
   compiler (nvim-treesitter `main` compiles parsers locally)
   - Windows: `winget install tree-sitter.tree-sitter` (or scoop/cargo) and e.g.
     `zig`/`clang`/MSVC on `PATH`
-- `dotnet` SDK (roslyn, csharpier, netcoredbg), `go` (gopls, delve, go.nvim tools),
+- `dotnet` SDK (roslyn, netcoredbg), `go` (gopls, delve, go.nvim tools),
   `node` (prettier, ts_ls, html)
 - A Nerd Font
 

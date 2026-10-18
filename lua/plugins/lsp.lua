@@ -118,7 +118,6 @@ local servers = {
 local tools = {
 	"stylua",
 	"prettier",
-	"csharpier",
 	"golangci-lint",
 	"delve",
 	"netcoredbg",

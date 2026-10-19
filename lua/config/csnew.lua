@@ -136,10 +136,46 @@ function M.create(kind, name)
 	vim.fn.mkdir(dir, "p")
 	vim.fn.writefile(lines, path)
 
-	local function open()
-		vim.cmd.edit(vim.fn.fnameescape(path))
+	M.open_in_project(path, function()
 		-- Cursor inside the braces, ready to type.
 		vim.api.nvim_win_set_cursor(0, { #lines - 1, 0 })
+	end)
+end
+
+--- Open a just-created .cs file only once Roslyn has added it to its project.
+---
+--- Opened earlier, it becomes a miscellaneous file, and after the reload the
+--- project ends up without its project references and implicit usings (no
+--- solution types or unimported-namespace completion), and stays so.
+---
+--- So: make Roslyn reload the project, then ask which project owns the
+--- still-closed file until it names the real one.
+---
+--- A "created" event for the .cs file alone doesn't trigger the reload on
+--- Windows: Roslyn lower-cases the drive letter of event paths (c:\...) but
+--- keeps project directories upper-case (C:\...), and its glob check
+--- (Microsoft.Extensions.FileSystemGlobbing 10.0) compares them
+--- case-sensitively, so the new file never matches the project's **/*.cs. A
+--- "changed" event for the .csproj takes the same reload path without the
+--- glob check. It doesn't cause a restore: Roslyn restores only when package
+--- references differ from the last load or project.assets.json is missing.
+--- Both events need Roslyn to accept client file events, which easy-dotnet
+--- enables by default on Windows.
+---
+--- For unknown files Roslyn answers with a throwaway "Miscellaneous Files"
+--- context, so only a context of the nearest .csproj counts ("Proj" or
+--- "Proj (net10.0)").
+---
+--- Used by :CsNew and by easy-dotnet's create item (see plugins/csharp.lua).
+---@param path string absolute path of the new file (already written)
+---@param after_open? fun() called once the buffer is open
+function M.open_in_project(path, after_open)
+	path = vim.fs.normalize(path)
+	local function open()
+		vim.cmd.edit(vim.fn.fnameescape(path))
+		if after_open then
+			after_open()
+		end
 	end
 
 	local client = vim.lsp.get_clients({ name = "easy_dotnet" })[1] -- easy-dotnet's Roslyn client
@@ -147,30 +183,8 @@ function M.create(kind, name)
 		return open()
 	end
 
-	-- Don't open the file before Roslyn has added it to its project. Opened
-	-- earlier, it becomes a miscellaneous file, and after the reload the
-	-- project ends up without its project references and implicit usings
-	-- (no solution types or unimported-namespace completion), and stays so.
-	--
-	-- So: make Roslyn reload the project, then ask which project owns the
-	-- still-closed file until it names the real one.
-	--
-	-- A "created" event for the .cs file alone doesn't trigger the reload on
-	-- Windows: Roslyn lower-cases the drive letter of event paths (c:\...)
-	-- but keeps project directories upper-case (C:\...), and its glob check
-	-- (Microsoft.Extensions.FileSystemGlobbing 10.0) compares them
-	-- case-sensitively, so the new file never matches the project's
-	-- **/*.cs. A "changed" event for the .csproj takes the same reload path
-	-- without the glob check. It doesn't cause a restore: Roslyn restores
-	-- only when package references differ from the last load or
-	-- project.assets.json is missing. Both events need Roslyn to accept
-	-- client file events, which easy-dotnet enables by default on Windows.
-	--
-	-- For unknown files Roslyn answers with a throwaway "Miscellaneous
-	-- Files" context, so only a context of the nearest .csproj counts
-	-- ("Proj" or "Proj (net10.0)").
 	local uri = vim.uri_from_fname(path)
-	local csproj = find_csproj(dir)
+	local csproj = find_csproj(vim.fs.dirname(path))
 	local proj = csproj and vim.fn.fnamemodify(csproj, ":t:r")
 	local changes = { { uri = uri, type = 1 } } -- 1 = Created
 	if csproj then
@@ -186,7 +200,8 @@ function M.create(kind, name)
 		return not proj or label == proj or label:find(proj .. " (", 1, true) == 1
 	end
 
-	vim.notify("CsNew: waiting for Roslyn to add the file to " .. (proj or "its project") .. "…", vim.log.levels.INFO)
+	local name = vim.fs.basename(path)
+	vim.notify(("Waiting for Roslyn to add %s to %s…"):format(name, proj or "its project"), vim.log.levels.INFO)
 	local deadline = vim.uv.now() + WAIT_MS
 	local function poll()
 		client:request(PROJECT_CONTEXTS, { _vs_textDocument = { uri = uri } }, function(_, result)
@@ -195,7 +210,7 @@ function M.create(kind, name)
 				return open()
 			end
 			if vim.uv.now() >= deadline then
-				vim.notify("CsNew: Roslyn hasn't added the file to a project yet; opening anyway", vim.log.levels.WARN)
+				vim.notify(("Roslyn hasn't added %s to a project yet; opening anyway"):format(name), vim.log.levels.WARN)
 				return open()
 			end
 			vim.defer_fn(poll, POLL_MS)

@@ -20,7 +20,7 @@
       "version": "2.0.0 - 3.0.0"
     },
     "go.nvim": {
-      "rev": "eb08c23f0bb291905cac63d81cd68f6a994c81e6",
+      "rev": "5622d97078b30d853a0dfaf8cba204263a60c99a",
       "src": "https://github.com/ray-x/go.nvim"
     },
     "guess-indent.nvim": {
@@ -101,7 +101,7 @@
       "version": "1.0.0 - 2.0.0"
     },
     "nvim-treesitter": {
-      "rev": "ca581c3436fc2b236847f5b739ebc263739e5ca6",
+      "rev": "29212d826054bb2948fa9d3a99eca9bf6a050eb2",
       "src": "https://github.com/nvim-treesitter/nvim-treesitter",
       "version": "'main'"
     },
@@ -113,11 +113,6 @@
     "plenary.nvim": {
       "rev": "74b06c6c75e4eeb3108ec01852001636d85a932b",
       "src": "https://github.com/nvim-lua/plenary.nvim"
-    },
-    "rose-pine": {
-      "rev": "f01eac6eedf6197509dde8b66de0263207ee1877",
-      "src": "https://github.com/rose-pine/neovim",
-      "version": "3.0.0 - 4.0.0"
     },
     "snacks.nvim": {
       "rev": "e6fd58c82f2f3fcddd3fe81703d47d6d48fc7b9f",

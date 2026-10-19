@@ -1,7 +1,35 @@
 -- Settings for easy-dotnet's Roslyn client ("easy_dotnet").
 -- Merged on top of easy-dotnet's defaults (see lua/plugins/csharp.lua).
+
+-- Roslyn reports projects it can't load (invalid .csproj, unsupported SDK,
+-- failed restore) only as window/logMessage, which Neovim writes to lsp.log
+-- and nowhere else. Keep that, and also notify about project-load errors,
+-- once per message and session (Roslyn repeats them on every reload).
+local seen = {}
+local function log_message(err, params, ctx)
+	vim.lsp.handlers["window/logMessage"](err, params, ctx)
+	if not params or params.type ~= vim.lsp.protocol.MessageType.Error then
+		return
+	end
+	local project, reason = (params.message or ""):match("Error while loading (.-%.%a+proj): (.*)")
+	if not project or seen[params.message] then
+		return
+	end
+	seen[params.message] = true
+	vim.schedule(function()
+		vim.notify(
+			("Roslyn could not load %s:\n%s"):format(vim.fs.basename((project:gsub("\\", "/"))), vim.trim(reason)),
+			vim.log.levels.ERROR,
+			{ title = "Roslyn" }
+		)
+	end)
+end
+
 ---@type vim.lsp.Config
 return {
+	handlers = {
+		["window/logMessage"] = log_message,
+	},
 	settings = {
 		["csharp|inlay_hints"] = {
 			csharp_enable_inlay_hints_for_implicit_object_creation = true,

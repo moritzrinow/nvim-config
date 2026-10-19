@@ -179,7 +179,9 @@ function M.open_in_project(path, after_open)
 	end
 
 	local client = vim.lsp.get_clients({ name = "easy_dotnet" })[1] -- easy-dotnet's Roslyn client
-	if not client then
+	-- `:let g:dotnet_new_file_workaround = v:false` opens new files right away,
+	-- e.g. to check whether a newer Roslyn still needs this.
+	if not client or vim.g.dotnet_new_file_workaround == false then
 		return open()
 	end
 

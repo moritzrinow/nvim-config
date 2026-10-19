@@ -100,6 +100,11 @@ local map = vim.keymap.set
 map("n", "<leader>na", "<cmd>Dotnet add package<CR>", { desc = "NuGet: [A]dd package" })
 map("n", "<leader>nr", "<cmd>Dotnet remove package<CR>", { desc = "NuGet: [R]emove package" })
 map("n", "<leader>no", "<cmd>Dotnet outdated<CR>", { desc = "NuGet: show [O]utdated (in project file)" })
+map("n", "<leader>nO", function()
+	-- easy-dotnet has no command to hide them again; its hints live in the
+	-- "easy-dotnet" extmark namespace (only used by outdated in project files).
+	vim.api.nvim_buf_clear_namespace(0, vim.api.nvim_create_namespace("easy-dotnet"), 0, -1)
+end, { desc = "NuGet: hide [O]utdated hints" })
 map("n", "<leader>nb", "<cmd>Dotnet build quickfix<CR>", { desc = ".NET: [B]uild (errors to quickfix)" })
 map("n", "<leader>ns", "<cmd>Dotnet secrets<CR>", { desc = ".NET: user [S]ecrets" })
 map("n", "<leader>nn", function()

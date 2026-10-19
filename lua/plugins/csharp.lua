@@ -50,6 +50,9 @@ dotnet.setup({
 
 	lsp = {
 		enabled = true,
+		-- Start Roslyn when the first C# file is opened, not at launch (slower
+		-- startup in solution folders otherwise).
+		preload_roslyn = false,
 	},
 
 	-- Empty .cs files (e.g. created in Oil) are filled with namespace + type,
@@ -61,6 +64,10 @@ dotnet.setup({
 	},
 
 	test_runner = {
+		-- Discover tests when the runner is first opened (<leader>rr), not at
+		-- launch. Until then, test files have no gutter signs and no
+		-- <leader>rt/rf/rp/dt keys.
+		auto_start_testrunner = false,
 		mappings = {
 			-- In test files (buffer-local). Defaults (<leader>r/t/d/p) collide
 			-- with the <leader>t, <leader>d and <leader>p groups.

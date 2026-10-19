@@ -8,6 +8,41 @@
 -- Roslyn settings (inlay hints, code lens, analysis scope): lsp/easy_dotnet.lua.
 -- Health check: :checkhealth easy-dotnet
 
+-- Open files created by easy-dotnet's server (create item, <leader>nn) the
+-- same way :CsNew does: only after Roslyn has added them to their project.
+-- Otherwise Roslyn's Windows new-file bug (see lua/config/csnew.lua) leaves
+-- them as "Miscellaneous Files" without solution types until a restart.
+-- The server opens files through this RPC handler module; replacing it in
+-- package.loaded must happen before easy-dotnet loads its RPC client.
+do
+	local mod = "easy-dotnet.rpc.handlers.open_buffer"
+	local original = require(mod)
+	local NEW_FILE_SECONDS = 30
+
+	--- A .cs file that was just created and isn't open in any buffer yet.
+	local function is_new_cs_file(path)
+		if not path:match("%.cs$") or vim.fn.bufloaded(path) == 1 then
+			return false
+		end
+		local stat = vim.uv.fs_stat(path)
+		if not stat then
+			return false
+		end
+		local created = stat.birthtime and stat.birthtime.sec > 0 and stat.birthtime.sec or stat.mtime.sec
+		return os.time() - created <= NEW_FILE_SECONDS
+	end
+
+	package.loaded[mod] = function(params, response, throw, validate)
+		local path = type(params) == "table" and type(params.path) == "string" and vim.fn.expand(params.path)
+		if not path or not is_new_cs_file(path) or not vim.lsp.get_clients({ name = "easy_dotnet" })[1] then
+			return original(params, response, throw, validate)
+		end
+		-- Answer right away; the wait for Roslyn can take a few seconds.
+		response(true)
+		require("config.csnew").open_in_project(path)
+	end
+end
+
 local dotnet = require("easy-dotnet")
 
 dotnet.setup({

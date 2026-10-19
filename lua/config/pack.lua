@@ -119,10 +119,12 @@ vim.pack.add({
 	gh("rcarriga/nvim-dap-ui"), -- last tag 2024; follow master
 	{ src = gh("jay-babu/mason-nvim-dap.nvim"), version = major(2) },
 	gh("leoluz/nvim-dap-go"), -- untagged
-	gh("NicholasMata/nvim-dap-cs"), -- untagged
 
 	-- Languages
 	gh("ray-x/guihua.lua"), -- untagged
 	gh("ray-x/go.nvim"), -- tags lag far behind fixes; follow master
-	gh("seblyng/roslyn.nvim"), -- untagged; C# + Razor (rzls.nvim is superseded by this)
+	-- .NET: Roslyn LSP, debugger, test runner, NuGet, project files. Untagged.
+	-- Needs plenary, snacks (picker) and nvim-dap (listed above) and the
+	-- EasyDotnet dotnet tool (`dotnet tool install -g EasyDotnet`).
+	gh("GustavEikaas/easy-dotnet.nvim"),
 })

@@ -23,8 +23,10 @@ nvim-pack-lock.json      vim.pack lockfile (generated; commit it, don't edit it)
   compiler (nvim-treesitter `main` compiles parsers locally)
   - Windows: `winget install tree-sitter.tree-sitter` (or scoop/cargo) and e.g.
     `zig`/`clang`/MSVC on `PATH`
-- `dotnet` SDK (roslyn, netcoredbg), `go` (gopls, delve, go.nvim tools),
-  `node` (prettier, ts_ls, html)
+- `dotnet` SDK plus the easy-dotnet server: `dotnet tool install -g EasyDotnet`
+  (easy-dotnet installs `roslyn-language-server` itself on first use)
+- `go` (gopls, delve, go.nvim tools), `node` (prettier, ts_ls, html; optionally
+  `npm install -g vscode-langservers-extracted` for HTML features in Razor files)
 - A Nerd Font
 
 ## First start
@@ -58,9 +60,15 @@ with Neovim upgrades, not in the regular batch. Stay on Neovim stable patch rele
 - `:DirtytalkBuild` rebuilds the "programming" spell dictionary from vim-dirtytalk's
   word lists (its own `:DirtytalkUpdate` is broken on 0.12). It runs automatically
   when the plugin is installed or updated.
-- C#: the `roslyn` mason package (Crashdummyy registry) provides
-  `roslyn-language-server`, which roslyn.nvim picks up automatically. Razor/cshtml is
-  handled by the same server; rzls is no longer needed (`:MasonUninstall rzls`).
+- .NET is handled by [easy-dotnet.nvim](https://github.com/GustavEikaas/easy-dotnet.nvim)
+  (`lua/plugins/csharp.lua`): Roslyn LSP (client `easy_dotnet`, settings in
+  `lsp/easy_dotnet.lua`), debugger, test runner, NuGet and project-file tooling,
+  `///` doc comments. `:Dotnet` lists all commands; `:checkhealth easy-dotnet`.
+  Updates: `:Dotnet _server update` (server), `dotnet-easydotnet roslyn update` (Roslyn).
+- `:CsNew {class|interface|enum|record|struct} Name` creates a C# file and makes sure
+  Roslyn adds it to its project first (works around a Roslyn bug on Windows where new
+  files stay in "Miscellaneous Files"). `<leader>nn` is easy-dotnet's picker-based
+  alternative.
 - Treesitter parsers are compiled locally; `:checkhealth nvim-treesitter` shows what's
   missing on the machine.
 
@@ -70,7 +78,14 @@ Leader is `<space>`. `<leader>sk` searches all keymaps, `<leader>?` shows buffer
 
 Highlights: `<leader>sf/sg/sw/s.` find files / grep / grep word / recent (snacks picker),
 `<leader><leader>` buffers, `\` Oil, `<leader>a`/`<C-e>` harpoon, `<leader>f` format,
-`<leader>xx` Trouble, `<leader>z` zen, `<F5>/<F1>/<F2>/<F3>/<leader>b` debugging.
+`<leader>xx` Trouble, `<leader>z` zen, `<F5>/<F1>/<F2>/<F3>/<leader>b` debugging
+(`<F5>` in a C# buffer opens easy-dotnet's project / launch-profile picker).
+
+.NET (`<leader>n`): `na`/`nr` add/remove NuGet package, `no` show outdated packages
+(then `nu`/`nU` upgrade one/all), `nR` add project reference (in project files),
+`nb` build with errors in quickfix, `ns` user secrets, `nn` new item.
+Tests (`<leader>r`): `rr` toggle test runner; in test files `rt` run test,
+`rf` run file, `rp` peek stack trace, and `<leader>dt` debug test.
 
 LSP uses Neovim's default `gr*` mappings (`grn` rename, `gra` code action, `grr`
 references, `gri` implementation, `grd` definition, `grt` type definition, `gO`

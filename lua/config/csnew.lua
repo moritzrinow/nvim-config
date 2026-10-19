@@ -16,7 +16,7 @@ local WAIT_MS = 15000
 
 --- Directory new files go to: Oil's current directory, the current file's
 --- directory, or the working directory.
-local function target_dir()
+function M.target_dir()
 	if vim.bo.filetype == "oil" then
 		local ok, oil = pcall(require, "oil")
 		local dir = ok and oil.get_current_dir()
@@ -92,7 +92,7 @@ function M.create(kind, name)
 	end
 
 	name = name:gsub("%.cs$", ""):gsub("\\", "/")
-	local dir = target_dir()
+	local dir = M.target_dir()
 	local sub = name:match("^(.*)/[^/]+$")
 	local type_name = name:match("([^/]+)$")
 	if sub then
@@ -142,7 +142,7 @@ function M.create(kind, name)
 		vim.api.nvim_win_set_cursor(0, { #lines - 1, 0 })
 	end
 
-	local client = vim.lsp.get_clients({ name = "roslyn" })[1]
+	local client = vim.lsp.get_clients({ name = "easy_dotnet" })[1] -- easy-dotnet's Roslyn client
 	if not client then
 		return open()
 	end
@@ -163,8 +163,8 @@ function M.create(kind, name)
 	-- **/*.cs. A "changed" event for the .csproj takes the same reload path
 	-- without the glob check. It doesn't cause a restore: Roslyn restores
 	-- only when package references differ from the last load or
-	-- project.assets.json is missing. Both events need filewatching = "auto"
-	-- (see plugins/csharp.lua).
+	-- project.assets.json is missing. Both events need Roslyn to accept
+	-- client file events, which easy-dotnet enables by default on Windows.
 	--
 	-- For unknown files Roslyn answers with a throwaway "Miscellaneous
 	-- Files" context, so only a context of the nearest .csproj counts

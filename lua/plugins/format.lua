@@ -13,9 +13,10 @@ require("conform").setup({
 		scss = { "prettier" },
 		json = { "prettier" },
 		jsonc = { "prettier" },
+		json5 = { "prettier" }, -- appsettings.json / launchSettings.json (easy-dotnet filetype)
 		yaml = { "prettier" },
 		markdown = { "prettier" },
-		-- C#: Roslyn (LSP) only; if Roslyn isn't attached, nothing runs.
+		-- C#: Roslyn (easy-dotnet's LSP) only; if it isn't attached, nothing runs.
 		cs = { lsp_format = "prefer" },
 		go = { "goimports", "gofmt" },
 		-- Fallback for filetypes without a formatter of their own (built-in).

@@ -10,6 +10,10 @@
       "src": "https://github.com/stevearc/conform.nvim",
       "version": "9.0.0 - 10.0.0"
     },
+    "easy-dotnet.nvim": {
+      "rev": "19974e83b046aee8e722d27adad06e9f9ccf6499",
+      "src": "https://github.com/GustavEikaas/easy-dotnet.nvim"
+    },
     "fidget.nvim": {
       "rev": "e1a07a5e46fb65a45a0c76870140bd2d16a73ebf",
       "src": "https://github.com/j-hui/fidget.nvim",
@@ -78,10 +82,6 @@
       "rev": "cfa2d58f4537aca6ca83e2de1a0d9f1491121264",
       "src": "https://github.com/mfussenegger/nvim-dap"
     },
-    "nvim-dap-cs": {
-      "rev": "16e5debe8cb7fb73c8799d20969ee00883586602",
-      "src": "https://github.com/NicholasMata/nvim-dap-cs"
-    },
     "nvim-dap-go": {
       "rev": "b4421153ead5d726603b02743ea40cf26a51ed5f",
       "src": "https://github.com/leoluz/nvim-dap-go"
@@ -118,10 +118,6 @@
       "rev": "f01eac6eedf6197509dde8b66de0263207ee1877",
       "src": "https://github.com/rose-pine/neovim",
       "version": "3.0.0 - 4.0.0"
-    },
-    "roslyn.nvim": {
-      "rev": "bf1bd4e70bc7068d1b4aebf4ce03cc19a86615be",
-      "src": "https://github.com/seblyng/roslyn.nvim"
     },
     "snacks.nvim": {
       "rev": "e6fd58c82f2f3fcddd3fe81703d47d6d48fc7b9f",

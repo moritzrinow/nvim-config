@@ -17,6 +17,9 @@ wk.add({
 	{ "<leader>t", group = "[T]oggle" },
 	{ "<leader>p", group = "[P]ack" },
 	{ "<leader>h", group = "[H]arpoon" },
+	{ "<leader>d", group = "[D]ebug" },
+	{ "<leader>n", group = ".[N]ET / NuGet" },
+	{ "<leader>r", group = "Tests ([R]un)" },
 })
 vim.keymap.set("n", "<leader>?", function()
 	wk.show({ global = false })

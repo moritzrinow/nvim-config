@@ -103,7 +103,7 @@ vim.lsp.config("lua_ls", {
 })
 
 -- Servers installed through mason and enabled automatically by mason-lspconfig
--- (names are nvim-lspconfig names). roslyn is handled by roslyn.nvim.
+-- (names are nvim-lspconfig names). C# (Roslyn) is handled by easy-dotnet.
 local servers = {
 	"gopls",
 	"templ",
@@ -120,21 +120,16 @@ local tools = {
 	"prettier",
 	"golangci-lint",
 	"delve",
-	"netcoredbg",
-	"roslyn", -- from the Crashdummyy registry; same build as VS Code
 }
 
 -- Mason -------------------------------------------------------------------
-require("mason").setup({
-	registries = {
-		"github:mason-org/mason-registry",
-		"github:Crashdummyy/mason-registry",
-	},
-})
+require("mason").setup({})
 
 require("mason-lspconfig").setup({
 	ensure_installed = servers,
-	automatic_enable = true, -- vim.lsp.enable() for every mason-installed server
+	-- vim.lsp.enable() for every mason-installed server, except Roslyn
+	-- configs, which would start a second Roslyn next to easy-dotnet's.
+	automatic_enable = { exclude = { "roslyn", "roslyn_ls" } },
 })
 
 require("mason-tool-installer").setup({

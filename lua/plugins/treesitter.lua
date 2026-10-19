@@ -9,6 +9,8 @@ ts.setup({})
 
 -- Parsers to keep installed (no-op if already present).
 -- markview.nvim needs markdown, markdown_inline, html, latex, yaml.
+-- easy-dotnet's language injections (//language=sql|json|xml) need sql, json, xml;
+-- json5 is its filetype for appsettings.json / launchSettings.json.
 local ensure_installed = {
 	"bash",
 	"c",
@@ -21,6 +23,7 @@ local ensure_installed = {
 	"html",
 	"javascript",
 	"json",
+	"json5",
 	"latex",
 	"lua",
 	"luadoc",
@@ -30,6 +33,7 @@ local ensure_installed = {
 	"query",
 	"razor",
 	"regex",
+	"sql",
 	"terraform",
 	"hcl",
 	"templ",
@@ -37,6 +41,7 @@ local ensure_installed = {
 	"tsx",
 	"vim",
 	"vimdoc",
+	"xml",
 	"yaml",
 }
 

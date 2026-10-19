@@ -1,61 +1,86 @@
--- C# / Razor via roslyn.nvim.
+-- .NET via easy-dotnet.nvim: Roslyn LSP (client "easy_dotnet"), debugger,
+-- test runner, NuGet / project-file tooling, `///` doc comments.
 --
--- roslyn.nvim provides lsp/roslyn.lua (cmd, root_dir, handlers) and calls
--- vim.lsp.enable("roslyn") itself. It finds the server at
--- $MASON/bin/roslyn-language-server, which the "roslyn" mason package from the
--- Crashdummyy registry provides (see plugins/lsp.lua). Razor/cshtml support is
--- built into the server now; rzls.nvim and the "rzls" mason package are no
--- longer needed.
+-- Machine requirements:
+--   dotnet tool install -g EasyDotnet      (easy-dotnet-server; :Dotnet _server update)
+--   roslyn-language-server                 (installed automatically on first use;
+--                                           updates via `dotnet-easydotnet roslyn update`)
+-- Roslyn settings (inlay hints, code lens, analysis scope): lsp/easy_dotnet.lua.
+-- Health check: :checkhealth easy-dotnet
 
--- :CsNew {class|interface|enum|record|struct} Name — new type file with the
--- namespace derived from the nearest .csproj (works from Oil buffers too).
-require("config.csnew")
+local dotnet = require("easy-dotnet")
 
--- `///` above a member generates the XML doc-comment skeleton (via Roslyn).
-require("config.roslyn_autoinsert")
+dotnet.setup({
+	picker = "snacks",
 
-require("roslyn").setup({
-	-- "auto" | "roslyn" | "off"
-	-- "auto": Neovim relays file events. Neither mode makes Roslyn pick up
-	-- new files reliably on Windows (drive-letter case mismatch in its glob
-	-- matching), so :CsNew sends its own events, which need this mode.
-	filewatching = "auto",
-	-- Look for solutions above the current root as well
-	broad_search = false,
-	-- Keep the solution picked with :Roslyn target
-	lock_target = false,
-})
+	lsp = {
+		enabled = true,
+	},
 
--- Settings sent to the server (merged on top of the plugin's lsp/roslyn.lua)
-vim.lsp.config("roslyn", {
-	settings = {
-		["csharp|inlay_hints"] = {
-			csharp_enable_inlay_hints_for_implicit_object_creation = true,
-			csharp_enable_inlay_hints_for_implicit_variable_types = false,
-			csharp_enable_inlay_hints_for_lambda_parameter_types = true,
-			csharp_enable_inlay_hints_for_types = false,
-			dotnet_enable_inlay_hints_for_indexer_parameters = true,
-			dotnet_enable_inlay_hints_for_literal_parameters = true,
-			dotnet_enable_inlay_hints_for_object_creation_parameters = true,
-			dotnet_enable_inlay_hints_for_other_parameters = true,
-			dotnet_enable_inlay_hints_for_parameters = false,
-			dotnet_suppress_inlay_hints_for_parameters_that_differ_only_by_suffix = true,
-			dotnet_suppress_inlay_hints_for_parameters_that_match_argument_name = true,
-			dotnet_suppress_inlay_hints_for_parameters_that_match_method_intent = true,
-		},
-		["csharp|code_lens"] = {
-			dotnet_enable_references_code_lens = true,
-		},
-		["csharp|completion"] = {
-			dotnet_show_completion_items_from_unimported_namespaces = true,
-			dotnet_show_name_completion_suggestions = true,
-		},
-		-- Analyse the whole solution so workspace diagnostics (<leader>xw)
-		-- cover unopened files too. Costs CPU/memory on big solutions;
-		-- switch back to "openFiles" if the server gets heavy.
-		["csharp|background_analysis"] = {
-			dotnet_analyzer_diagnostics_scope = "fullSolution",
-			dotnet_compiler_diagnostics_scope = "fullSolution",
+	-- Empty .cs files (e.g. created in Oil) are filled with namespace + type,
+	-- and easy-dotnet's "create item" uses the same style. :CsNew writes
+	-- file-scoped namespaces too.
+	auto_bootstrap_namespace = {
+		type = "file_scoped",
+		enabled = true,
+	},
+
+	test_runner = {
+		mappings = {
+			-- In test files (buffer-local). Defaults (<leader>r/t/d/p) collide
+			-- with the <leader>t, <leader>d and <leader>p groups.
+			run_test_from_buffer = { lhs = "<leader>rt", desc = "Run test under cursor" },
+			run_all_tests_from_buffer = { lhs = "<leader>rf", desc = "Run all tests in file" },
+			peek_stack_trace_from_buffer = { lhs = "<leader>rp", desc = "Peek test stack trace" },
+			debug_test_from_buffer = { lhs = "<leader>dt", desc = "Debug test under cursor" },
+			-- The test runner window keeps easy-dotnet's defaults
+			-- (<leader>r/R/d/p/g/e, o, E, W, ]f/[f, q, ...).
 		},
 	},
+
+	-- Shown after :Dotnet outdated (<leader>no) in a project file; defaults
+	-- (<leader>pu/<leader>pa) collide with the plugin-update key.
+	outdated = {
+		mappings = {
+			upgrade = { lhs = "<leader>nu", desc = "Upgrade package under cursor" },
+			upgrade_all = { lhs = "<leader>nU", desc = "Upgrade all outdated packages" },
+		},
+	},
+
+	-- Its <leader>ar (add project reference) collides with harpoon's
+	-- <leader>a; mapped as <leader>nR below instead.
+	csproj_mappings = false,
+	fsproj_mappings = false,
 })
+
+-- :CsNew {class|interface|enum|record|struct} Name — kept next to easy-dotnet's
+-- create item (<leader>nn) because it works around Roslyn ignoring new files
+-- on Windows (see lua/config/csnew.lua).
+local csnew = require("config.csnew")
+
+-- Keymaps ---------------------------------------------------------------------
+local map = vim.keymap.set
+
+-- <leader>n: .NET project / NuGet
+map("n", "<leader>na", "<cmd>Dotnet add package<CR>", { desc = "NuGet: [A]dd package" })
+map("n", "<leader>nr", "<cmd>Dotnet remove package<CR>", { desc = "NuGet: [R]emove package" })
+map("n", "<leader>no", "<cmd>Dotnet outdated<CR>", { desc = "NuGet: show [O]utdated (in project file)" })
+map("n", "<leader>nb", "<cmd>Dotnet build quickfix<CR>", { desc = ".NET: [B]uild (errors to quickfix)" })
+map("n", "<leader>ns", "<cmd>Dotnet secrets<CR>", { desc = ".NET: user [S]ecrets" })
+map("n", "<leader>nn", function()
+	dotnet.create_item(csnew.target_dir())
+end, { desc = ".NET: [N]ew item (class/interface/...)" })
+
+-- Add project reference, in project files only
+vim.api.nvim_create_autocmd("BufEnter", {
+	group = vim.api.nvim_create_augroup("user.dotnet_project_files", { clear = true }),
+	pattern = { "*.csproj", "*.fsproj" },
+	callback = function(ev)
+		map("n", "<leader>nR", function()
+			require("easy-dotnet.csproj-mappings").add_project_reference(ev.file)
+		end, { buf = ev.buf, desc = ".NET: add project [R]eference" })
+	end,
+})
+
+-- <leader>r: tests (run/peek keys in test files are set up by easy-dotnet above)
+map("n", "<leader>rr", "<cmd>Dotnet testrunner<CR>", { desc = "Toggle test [R]unner" })

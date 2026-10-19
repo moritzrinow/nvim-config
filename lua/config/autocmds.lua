@@ -10,11 +10,3 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 		vim.hl.on_yank()
 	end,
 })
-
--- Razor / cshtml filetypes (roslyn.nvim handles the LSP side)
-vim.filetype.add({
-	extension = {
-		razor = "razor",
-		cshtml = "razor",
-	},
-})
